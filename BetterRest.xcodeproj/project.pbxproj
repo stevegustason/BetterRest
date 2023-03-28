@@ -53,9 +53,9 @@
 		1273509529D10A6400CE7574 /* BetterRest */ = {
 			isa = PBXGroup;
 			children = (
-				127350A629D27D7A00CE7574 /* SleepCalculator.mlmodel */,
 				1273509629D10A6400CE7574 /* BetterRestApp.swift */,
 				1273509829D10A6400CE7574 /* ContentView.swift */,
+				127350A629D27D7A00CE7574 /* SleepCalculator.mlmodel */,
 				1273509A29D10A6500CE7574 /* Assets.xcassets */,
 				1273509C29D10A6500CE7574 /* Preview Content */,
 			);
