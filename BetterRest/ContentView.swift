@@ -27,8 +27,15 @@ struct ContentView: View {
     // Variable to track the user's desired wake up time, with a default of 7 am
     @State private var wakeUp = defaultWakeTime
     
-    // Function to calculate when the person should go to bed based on their inputs and the model
-    func calculateBedtime() {
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var showingAlert = false
+    
+    // Calculate when the person should go to bed based on their inputs and the model
+    var idealBedtime: String {
+        // Variable to track our bedtime
+        var bedtime = ""
+        
         do {
             let config = MLModelConfiguration()
             // Create an instance of our model
@@ -47,21 +54,17 @@ struct ContentView: View {
             // You can subtract a value in seconds from a date, so we can subtract our actual sleep prediction from our desired wake up time
             let sleepTime = wakeUp - prediction.actualSleep
             
-            // Set our alert title, with the message being a formatted time
-            alertTitle = "Your ideal bedtime is…"
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            // Set our ideal bedtime
+            bedtime = sleepTime.formatted(date: .omitted, time: .shortened)
         } catch {
-            // If something goes wrong, set a title and message for our error alert
+            // If something goes wrong, set a title and message for our error alert and show it
             alertTitle = "Error"
             alertMessage = "Sorry, there was a problem calculating your bedtime."
+            showingAlert = true
         }
-        // Show the alert once calculate bedtime is done - this will either show the correct value or an error alert
-        showingAlert = true
+        // Return our ideal bedtime
+        return bedtime
     }
-    
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
     
     var body: some View {
         NavigationView {
@@ -82,17 +85,26 @@ struct ContentView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 0) {
-                    // Header and stepper for a user to select how much coffee they drink per day, from 0 to 20 cups.
+                    // Header and picker for a user to select how much coffee they drink per day, from 0 to 10 cups.
                     Text("Daily coffee intake")
                         .font(.headline)
-                    Stepper(coffeeAmount == 1 ? "1 cup" : "\(coffeeAmount) cups", value: $coffeeAmount, in: 0...20)
+                    Picker("Amount:", selection: $coffeeAmount) {
+                        ForEach(1..<11) {
+                            $0 == 1 ? Text("\($0) cup") : Text("\($0) cups")
+                        }
+                    }
                 }
+                VStack {
+                    Text("Your ideal bedtime is:")
+                        .font(.title3.bold())
+                        .padding()
+                    Text("\(idealBedtime)")
+                        .font(.largeTitle)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding()
             }
             .navigationTitle("BetterRest")
-            // Adds a button to the top of our app to use the calculateBedtime function to calculate the output based on the user's inputs.
-            .toolbar {
-                Button("Calculate", action: calculateBedtime)
-            }
             // Show our alert title and message when showingAlert is true, with an OK button
             .alert(alertTitle, isPresented: $showingAlert) {
                 Button("OK") { }
